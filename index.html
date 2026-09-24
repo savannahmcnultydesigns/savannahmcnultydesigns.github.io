@@ -258,12 +258,12 @@
     .tag-in b{font:400 1.05rem/1.05 var(--display);letter-spacing:.05em;color:var(--teal);text-transform:uppercase;font-synthesis:none}
     .tag-in i{font:400 .85rem/1.15 var(--body);font-style:normal;color:var(--teal)}
     .frame:hover .tag-in{transform:translateY(-3px)}
-    .tag-tl{top:-5%;left:-6%}
-    .tag-tc{top:-4%;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%)}
-    .tag-tr{top:-4%;right:-6%}
-    .tag-bl{bottom:-6%;left:-6%}
-    .tag-bc{bottom:-7%;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%)}
-    .tag-br{bottom:-6%;right:-8%}
+    .tag-tl{top:-9%;left:-10%}
+    .tag-tc{top:-8%;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%)}
+    .tag-tr{top:-8%;right:-10%}
+    .tag-bl{bottom:-10%;left:-10%}
+    .tag-bc{bottom:-11%;left:50%;-webkit-transform:translateX(-50%);transform:translateX(-50%)}
+    .tag-br{bottom:-10%;right:-12%}
     @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 
     /* ---------- About ---------- */
@@ -447,7 +447,7 @@
          cap the tag to roughly one grid column and let it wrap onto two lines */
       .tag{max-width:calc(50vw - 3rem)}
       .tag-tl,.tag-tc,.tag-tr,.tag-bl,.tag-bc,.tag-br{
-        top:auto;right:auto;bottom:-24%;left:50%;
+        top:auto;right:auto;bottom:-30%;left:50%;
         -webkit-transform:translateX(-50%);transform:translateX(-50%);
       }
       .tag-in b{font-size:.95rem}.tag-in i{font-size:.8rem}
@@ -762,6 +762,9 @@
    ---------------------------------------------------------------------
    frame : which frame shape/color it uses:
            'magenta' | 'teal' | 'cream' | 'maroon' | 'white' | 'purple'
+   title : the label shown on the frame. Add \n where you want a forced line
+           break (e.g. 'NN CrimeCon\n2024') so it wraps the same way on every
+           screen size instead of wrapping differently on mobile vs. desktop.
    thumb : the picture shown inside the frame on the page
    description : what the project was about. Use a blank line between
                  paragraphs (\n\n).
@@ -823,7 +826,7 @@ const PROJECTS = [
     ]
   },
   {
-    id:'p6', frame:'purple', title:'NN CrimeCon 2024', type:'Event',
+    id:'p6', frame:'purple', title:'NN\nCrimeCon\n2024', type:'Event',
     thumb:'images/project-6/thumb.jpg',
     description:'Tell the story of this project here: the goal, the challenge, what you designed, and how it turned out.\n\nUse a blank line to start a new paragraph.',
     facts:[{label:'Role', value:'Your role'},{label:'Tools', value:'Photoshop'},{label:'Year', value:'2024'}],
@@ -898,7 +901,7 @@ PROJECTS.forEach((p,i)=>{
           ${p.thumb?`<img src="${esc(p.thumb)}" alt="" loading="lazy" onerror="this.remove()">`:''}
         </div>
       </div>
-      <div class="tag tag-${f.tag}"><div class="tag-in"><b>${esc(p.title)}</b><i>${esc(p.type)}</i></div></div>
+      <div class="tag tag-${f.tag}"><div class="tag-in"><b>${esc(p.title).replace(/\n/g,'<br>')}</b><i>${esc(p.type)}</i></div></div>
     </div>`;
   gallery.appendChild(cell);
 });
