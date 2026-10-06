@@ -36,7 +36,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap" rel="stylesheet">
-  <script>document.documentElement.classList.add('js');</script>
+  <script>document.documentElement.classList.add('js');</script> 
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
   <style>
     /* ---------- Serif display font: Diamond Sparkling ---------- */
@@ -313,7 +314,23 @@
     .skill-list{display:flex;flex-wrap:wrap;gap:.9rem 1.4rem;list-style:none;margin:0;padding:0 0 0 .3rem}
     .skill-list li{background:var(--cream);border:2px solid var(--line);border-radius:999px;padding:.3em 1.15em;font-weight:500;font-size:1.1rem}
     .programs{margin:0;padding:0 0 0 .3rem;font-size:1.12rem;font-weight:300;line-height:1.8}
-
+    /* ---------- Contact form ---------- */
+    .contact-form{
+      width:min(32rem,100%);margin:clamp(2rem,5vh,3.5rem) auto 0;
+      display:flex;flex-direction:column;gap:1.1rem;text-align:left;
+    }
+    .cf-row{display:flex;flex-direction:column;gap:.4rem}
+    .cf-row label{font-weight:500;font-size:.95rem}
+    .cf-row input,.cf-row textarea{
+      font:400 1rem/1.4 var(--body);padding:.65em .9em;border-radius:12px;
+      border:2px solid var(--ink);background:#fff;color:var(--ink);resize:vertical;
+    }
+    .cf-row input:focus-visible,.cf-row textarea:focus-visible{outline:3px solid var(--cream);outline-offset:2px}
+    .contact-form .btn{align-self:center;margin-top:.2rem}
+    .contact-form .btn:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:none}
+    .cf-status{margin:0;min-height:1.3em;font-size:.95rem;text-align:center}
+    .cf-status.ok{color:#d7ffe0}
+    .cf-status.err{color:#ffd6e0}
     /* ---------- Contact ---------- */
     .contact{
       background:var(--magenta);color:#fff;text-align:center;padding-inline:1.2rem;
@@ -775,6 +792,23 @@
           <a class="text" href="https://www.linkedin.com/in/savannahmcnulty/" target="_blank" rel="noopener noreferrer">linkedin.com/in/savannahmcnulty/</a>
         </div>
       </div>
+
+      <form class="contact-form" id="contactForm" data-reveal style="--d:.2s">
+        <div class="cf-row">
+          <label for="cfName">Name</label>
+          <input type="text" id="cfName" name="from_name" required>
+        </div>
+        <div class="cf-row">
+          <label for="cfEmail">Your email</label>
+          <input type="email" id="cfEmail" name="from_email" required>
+        </div>
+        <div class="cf-row">
+          <label for="cfMessage">Message</label>
+          <textarea id="cfMessage" name="message" rows="4" required></textarea>
+        </div>
+        <button class="btn btn-lg" type="submit" id="cfSubmit">Send message</button>
+        <p class="cf-status" id="cfStatus" role="status" aria-live="polite"></p>
+      </form>
     </section>
   </main>
 
@@ -1239,7 +1273,40 @@ document.addEventListener('keydown',e=>{
     toTop.addEventListener('click',()=>goTo('top'));
   }
 })();
+/* ---------- Contact form (EmailJS) ---------- */
+(function(){
+  const EMAILJS_PUBLIC_KEY='AfLEOvgrNi3m--XGC';
+  const EMAILJS_SERVICE_ID='service_vcxz2uo';
+  const EMAILJS_TEMPLATE_ID='template_914pjrc';
 
+  if(typeof emailjs==='undefined')return;
+  emailjs.init({publicKey:EMAILJS_PUBLIC_KEY});
+
+  const form=document.getElementById('contactForm');
+  const btn=document.getElementById('cfSubmit');
+  const status=document.getElementById('cfStatus');
+  if(!form)return;
+
+  form.addEventListener('submit',e=>{
+    e.preventDefault();
+    btn.disabled=true;btn.textContent='Sending…';
+    status.textContent='';status.className='cf-status';
+
+    emailjs.sendForm(EMAILJS_SERVICE_ID,EMAILJS_TEMPLATE_ID,form)
+      .then(()=>{
+        status.textContent='Message sent — thank you!';
+        status.className='cf-status ok';
+        form.reset();
+      })
+      .catch(()=>{
+        status.textContent='Something went wrong — please email me directly instead.';
+        status.className='cf-status err';
+      })
+      .finally(()=>{
+        btn.disabled=false;btn.textContent='Send message';
+      });
+  });
+})();
 /* ---------- Scroll reveal ---------- */
 (function(){
   const els=document.querySelectorAll('[data-reveal]');
