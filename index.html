@@ -1020,6 +1020,8 @@ function renderProject(i){
   html+=String(p.description||'').split(/\n\s*\n/).map(t=>`<p>${esc(t).replace(/\n/g,'<br>')}</p>`).join('');
   dDesc.innerHTML=html;
   dBody.scrollTop=0;
+  dDesc.scrollTop=0;
+  dMedia.scrollTop=0;
 }
 
 function stopMedia(){
