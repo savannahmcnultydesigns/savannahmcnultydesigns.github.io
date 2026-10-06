@@ -359,8 +359,8 @@
       transition:transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s;
       box-shadow:-10px 0 40px rgba(51,16,42,.2);
     }
-        @media (min-width:860px){
-      .drawer{width:min(58rem,92vw)}
+     @media (min-width:860px){
+    .drawer{width:calc(100vw - 40px)}
     }
     .drawer.open{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
     .drawer-head{
@@ -385,9 +385,16 @@
        rather than squeezing into a half-width image slot */
     .media figure:has(video),.media figure:has(iframe){grid-column:1/-1}
     @media (min-width:860px){
-      /* Text sidebar + image grid side by side, sidebar stays visible while you scroll images */
-      .drawer-layout{grid-template-columns:minmax(15rem,30%) 1fr;align-items:start;gap:2.2rem}
+      /* Text sidebar + image grid side by side, sidebar stays visible while you scroll images.
+     The sidebar is capped at 26rem so the paragraph text doesn't stretch into an
+     uncomfortably wide reading column now that the drawer itself is nearly full-width. */
+      .drawer-layout{grid-template-columns:minmax(15rem,26rem) 1fr;align-items:start;gap:2.6rem}
       .drawer-desc{position:sticky;top:0}
+}
+    @media (min-width:1300px){
+  /* Extra room at this width: let the image grid use three columns instead of two */
+    .media{grid-template-columns:repeat(3,1fr)}
+}
     }
     .media figure{margin:0}
     .media img,.media video,.media iframe{
