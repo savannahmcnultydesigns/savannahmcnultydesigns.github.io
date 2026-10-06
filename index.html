@@ -469,6 +469,22 @@
       .lightbox{padding:1rem}
       .lightbox-close{top:calc(1rem + env(safe-area-inset-top, 0px));right:1rem}
     }
+      .lightbox-nav{
+      position:fixed;top:50%;transform:translateY(-50%);z-index:91;
+      width:3rem;height:3rem;border-radius:50%;background:var(--cream);
+      border:2px solid var(--line);cursor:pointer;display:grid;place-items:center;
+      transition:transform .2s ease, opacity .2s ease;
+    }
+    .lightbox-nav:hover{transform:translateY(-50%) scale(1.08)}
+    .lightbox-nav svg{width:1.3rem;height:1.3rem;stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .lightbox-prev{left:1.3rem}
+    .lightbox-next{right:1.3rem}
+    .lightbox-nav.hide{display:none}
+    @media (max-width:640px){
+      .lightbox-nav{width:2.6rem;height:2.6rem}
+      .lightbox-prev{left:.6rem}
+      .lightbox-next{right:.6rem}
+    }
     .drawer .item-in{animation:rise .6s both}
 
     /* ---------- Back to top ---------- */
@@ -849,8 +865,14 @@
     <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close full-screen image">
       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 3l14 14M17 3L3 17"/></svg>
     </button>
+    <button class="lightbox-nav lightbox-prev" id="lightboxPrev" type="button" aria-label="Previous image">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M12 4l-6 6 6 6"/></svg>
+    </button>
     <img id="lightboxImg" src="" alt="">
     <video id="lightboxVideo" controls playsinline></video>
+    <button class="lightbox-nav lightbox-next" id="lightboxNext" type="button" aria-label="Next image">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M8 4l6 6-6 6"/></svg>
+    </button>
   </div>
   </div>
 
@@ -1055,7 +1077,9 @@ const drawer=document.getElementById('drawer'),
       lightbox=document.getElementById('lightbox'),
       lightboxImg=document.getElementById('lightboxImg'),
       lightboxVideo=document.getElementById('lightboxVideo'),
-      lightboxClose=document.getElementById('lightboxClose'),
+      lightboxClose=document.getElementById('lightboxClose'),       
+      lightboxPrev=document.getElementById('lightboxPrev'),
+      lightboxNext=document.getElementById('lightboxNext'),
       backdropTargets=[document.getElementById('siteHeader'),document.getElementById('mainContent'),document.querySelector('.site-footer'),document.getElementById('toTopBtn')];
 let current=-1,lastFocus=null;
 
@@ -1093,7 +1117,8 @@ function renderProject(i){
       el.src=m.src;el.alt=m.alt||'';el.loading='lazy';
       el.addEventListener('error',()=>el.replaceWith(missing('Image coming soon')),{once:true});
       el.style.cursor='zoom-in';
-      el.addEventListener('click',()=>openLightbox('image',el.src,el.alt));
+      const imgIdx=lightboxImages.indexOf(m);
+      el.addEventListener('click',()=>openLightbox('image',el.src,el.alt,imgIdx));
     }
     fig.appendChild(el);
     if(m.type==='video'){
@@ -1146,7 +1171,8 @@ function closeDrawer(){
   document.body.style.overflow='';
   if(lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){lastFocus.focus();}}
 }
-function openLightbox(type,src,alt){
+function openLightbox(type,src,alt,idx){
+  lightboxIndex=type==='image'?(typeof idx==='number'?idx:lightboxImages.findIndex(m=>m.src===src)):-1;
   if(type==='video'){
     lightboxVideo.src=src;
     lightboxVideo.classList.add('show');
@@ -1159,6 +1185,9 @@ function openLightbox(type,src,alt){
     lightboxVideo.classList.remove('show');
     lightboxVideo.pause();lightboxVideo.src='';
   }
+  const showNav=lightboxIndex>=0&&lightboxImages.length>1;
+  lightboxPrev.classList.toggle('hide',!showNav);
+  lightboxNext.classList.toggle('hide',!showNav);
   lightbox.classList.add('open');
   lightbox.setAttribute('aria-hidden','false');
   lightboxClose.focus();
@@ -1172,6 +1201,8 @@ function closeLightbox(){
 }
 lightboxClose.addEventListener('click',closeLightbox);
 lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
+lightboxPrev.addEventListener('click',e=>{e.stopPropagation();stepLightbox(-1);});
+lightboxNext.addEventListener('click',e=>{e.stopPropagation();stepLightbox(1);});
 function step(dir){
   stopMedia();
   renderProject((current+dir+PROJECTS.length)%PROJECTS.length);
