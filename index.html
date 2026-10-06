@@ -359,6 +359,9 @@
       transition:transform .45s cubic-bezier(.2,.8,.2,1), visibility 0s linear .45s;
       box-shadow:-10px 0 40px rgba(51,16,42,.2);
     }
+        @media (min-width:860px){
+      .drawer{width:min(58rem,92vw)}
+    }
     .drawer.open{transform:none;visibility:visible;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
     .drawer-head{
       display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
@@ -373,7 +376,19 @@
     .drawer-close:hover{transform:rotate(90deg)}
     .drawer-close svg{width:1.1rem;height:1.1rem;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
     .drawer-body{flex:1;overflow-y:auto;padding:1.5rem 1.6rem 2rem;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-    .media{display:grid;gap:1.2rem;margin-bottom:1.6rem}
+    .drawer-layout{display:grid;grid-template-columns:1fr;gap:1.6rem}
+    .media{display:grid;grid-template-columns:1fr;gap:1rem;margin-bottom:0}
+    @media (min-width:480px){
+      .media{grid-template-columns:repeat(2,1fr)}
+    }
+    /* Videos and embedded documents are wide-format — let them take the full grid width
+       rather than squeezing into a half-width image slot */
+    .media figure:has(video),.media figure:has(iframe){grid-column:1/-1}
+    @media (min-width:860px){
+      /* Text sidebar + image grid side by side, sidebar stays visible while you scroll images */
+      .drawer-layout{grid-template-columns:minmax(15rem,30%) 1fr;align-items:start;gap:2.2rem}
+      .drawer-desc{position:sticky;top:0}
+    }
     .media figure{margin:0}
     .media img,.media video,.media iframe{
       display:block;width:100%;border-radius:14px;border:2px solid var(--magenta);background:#f6e3ef;
@@ -738,8 +753,10 @@
       </button>
     </div>
     <div class="drawer-body" id="drawerBody" tabindex="-1">
-      <div class="drawer-desc" id="drawerDesc"></div>
-      <div class="media" id="drawerMedia"></div>
+      <div class="drawer-layout">
+        <div class="drawer-desc" id="drawerDesc"></div>
+        <div class="media" id="drawerMedia"></div>
+      </div>
     </div>
     <div class="drawer-foot">
       <button class="btn btn-sm" type="button" id="prevProject">&larr; Previous project</button>
