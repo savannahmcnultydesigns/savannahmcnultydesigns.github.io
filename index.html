@@ -416,6 +416,30 @@
     .facts{display:grid;grid-template-columns:auto 1fr;gap:.4rem 1rem;margin:0 0 1.3em;font-size:1.02rem}
     .facts dt{font-weight:500}.facts dd{margin:0}
     .drawer-foot{display:flex;justify-content:space-between;gap:.6rem;padding:.9rem 1.6rem calc(.9rem + env(safe-area-inset-bottom, 0px));border-top:2px solid rgba(191,63,121,.25)}
+        /* ---------- Image lightbox ---------- */
+    .lightbox{
+      position:fixed;inset:0;z-index:90;background:rgba(51,16,42,.92);
+      display:flex;align-items:center;justify-content:center;padding:2.5rem;
+      opacity:0;visibility:hidden;transition:opacity .3s ease, visibility 0s linear .3s;
+    }
+    .lightbox.open{opacity:1;visibility:visible;transition:opacity .3s ease}
+    .lightbox img{
+      max-width:100%;max-height:100%;border-radius:10px;
+      box-shadow:0 20px 60px rgba(0,0,0,.5);
+      display:block;object-fit:contain;
+    }
+    .lightbox-close{
+      position:fixed;top:1.3rem;right:1.3rem;z-index:91;
+      width:2.9rem;height:2.9rem;border-radius:50%;background:var(--cream);
+      border:2px solid var(--line);cursor:pointer;display:grid;place-items:center;
+      transition:transform .2s ease;
+    }
+    .lightbox-close:hover{transform:rotate(90deg)}
+    .lightbox-close svg{width:1.1rem;height:1.1rem;stroke:var(--ink);stroke-width:2.5;stroke-linecap:round}
+    @media (max-width:640px){
+      .lightbox{padding:1rem}
+      .lightbox-close{top:calc(1rem + env(safe-area-inset-top, 0px));right:1rem}
+    }
     .drawer .item-in{animation:rise .6s both}
 
     /* ---------- Back to top ---------- */
@@ -774,6 +798,13 @@
       <button class="btn btn-sm" type="button" id="nextProject">Next project &rarr;</button>
     </div>
   </aside>
+    <!-- ================= IMAGE LIGHTBOX ================= -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Full-screen image" aria-hidden="true">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close full-screen image">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 3l14 14M17 3L3 17"/></svg>
+    </button>
+    <img id="lightboxImg" src="" alt="">
+  </div>
 
   <!-- ================= BACK TO TOP ================= -->
   <button type="button" class="to-top" id="toTopBtn" aria-label="Scroll back to top">
@@ -973,6 +1004,9 @@ const drawer=document.getElementById('drawer'),
       dDesc=document.getElementById('drawerDesc'),
       dBody=document.getElementById('drawerBody'),
       closeBtn=document.getElementById('drawerClose'),
+      lightbox=document.getElementById('lightbox'),
+      lightboxImg=document.getElementById('lightboxImg'),
+      lightboxClose=document.getElementById('lightboxClose'),
       backdropTargets=[document.getElementById('siteHeader'),document.getElementById('mainContent'),document.querySelector('.site-footer'),document.getElementById('toTopBtn')];
 let current=-1,lastFocus=null;
 
@@ -1008,6 +1042,10 @@ function renderProject(i){
       el=document.createElement('img');
       el.src=m.src;el.alt=m.alt||'';el.loading='lazy';
       el.addEventListener('error',()=>el.replaceWith(missing('Image coming soon')),{once:true});
+      el.style.cursor='zoom-in';
+      el.addEventListener('click',()=>openLightbox(el.src,el.alt));
+            el.style.cursor='zoom-in';
+      el.addEventListener('click',()=>openLightbox(el.src,el.alt));
     }
     fig.appendChild(el);
     if(m.caption){const c=document.createElement('figcaption');c.textContent=m.caption;fig.appendChild(c);}
@@ -1047,6 +1085,21 @@ function closeDrawer(){
   document.body.style.overflow='';
   if(lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){lastFocus.focus();}}
 }
+  function openLightbox(src,alt){
+  lightboxImg.src=src;lightboxImg.alt=alt||'';
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden','false');
+  lightboxClose.focus();
+}
+function closeLightbox(){
+  if(!lightbox.classList.contains('open'))return;
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden','true');
+  lightboxImg.src='';
+}
+lightboxClose.addEventListener('click',closeLightbox);
+lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
+  }
 function step(dir){
   stopMedia();
   renderProject((current+dir+PROJECTS.length)%PROJECTS.length);
@@ -1064,7 +1117,11 @@ closeBtn.addEventListener('click',closeDrawer);
 scrim.addEventListener('click',closeDrawer);
 document.getElementById('prevProject').addEventListener('click',()=>step(-1));
 document.getElementById('nextProject').addEventListener('click',()=>step(1));
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  if(lightbox.classList.contains('open')){closeLightbox();return;}
+  closeDrawer();
+});
 
 /* ---------- In-page navigation: scrolls the page, never opens a new one ---------- */
 (function(){
