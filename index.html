@@ -385,11 +385,15 @@
        rather than squeezing into a half-width image slot */
     .media figure:has(video),.media figure:has(iframe){grid-column:1/-1}
     @media (min-width:860px){
-      /* Text sidebar + image grid side by side, sidebar stays visible while you scroll images.
-     The sidebar is capped at 26rem so the paragraph text doesn't stretch into an
-     uncomfortably wide reading column now that the drawer itself is nearly full-width. */
-      .drawer-layout{grid-template-columns:minmax(15rem,26rem) 1fr;align-items:start;gap:2.6rem}
-      .drawer-desc{position:sticky;top:0}
+  /* Text sidebar + image grid side by side, each with its own independent scrollbar —
+     no sticky positioning, so scrolling one never shifts or pins the other. */
+  .drawer-body{overflow-y:hidden;padding-bottom:0}
+  .drawer-layout{
+    grid-template-columns:minmax(15rem,26rem) 1fr;align-items:start;gap:2.6rem;
+    height:100%;
+  }
+  .drawer-desc{height:100%;overflow-y:auto;padding-right:.6rem;padding-bottom:1.5rem}
+  .media{height:100%;overflow-y:auto;align-content:start;padding-right:.3rem;padding-bottom:1.5rem}
 }
     @media (min-width:1300px){
   /* Extra room at this width: let the image grid use three columns instead of two */
