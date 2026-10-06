@@ -423,11 +423,23 @@
       opacity:0;visibility:hidden;transition:opacity .3s ease, visibility 0s linear .3s;
     }
     .lightbox.open{opacity:1;visibility:visible;transition:opacity .3s ease}
-    .lightbox img{
+    .lightbox img,.lightbox video{
       max-width:100%;max-height:100%;border-radius:10px;
       box-shadow:0 20px 60px rgba(0,0,0,.5);
-      display:block;object-fit:contain;
+      display:none;object-fit:contain;
     }
+        /* Expand-to-fullscreen button on each video thumbnail in the drawer grid */
+    .media figure{position:relative}
+    .media .vid-expand{
+      position:absolute;top:.6rem;right:.6rem;z-index:2;
+      width:2.5rem;height:2.5rem;border-radius:50%;
+      background:rgba(255,255,255,.9);border:2px solid var(--line);
+      display:grid;place-items:center;cursor:pointer;
+      transition:transform .2s ease;
+    }
+    .media .vid-expand:hover{transform:scale(1.08)}
+    .media .vid-expand svg{width:1.1rem;height:1.1rem;stroke:var(--ink);stroke-width:2.5;fill:none;stroke-linecap:round}
+    .lightbox img.show,.lightbox video.show{display:block}
     .lightbox-close{
       position:fixed;top:1.3rem;right:1.3rem;z-index:91;
       width:2.9rem;height:2.9rem;border-radius:50%;background:var(--cream);
@@ -804,6 +816,8 @@
       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3 3l14 14M17 3L3 17"/></svg>
     </button>
     <img id="lightboxImg" src="" alt="">
+    <video id="lightboxVideo" controls playsinline></video>
+  </div>
   </div>
 
   <!-- ================= BACK TO TOP ================= -->
@@ -1006,6 +1020,7 @@ const drawer=document.getElementById('drawer'),
       closeBtn=document.getElementById('drawerClose'),
       lightbox=document.getElementById('lightbox'),
       lightboxImg=document.getElementById('lightboxImg'),
+      lightboxVideo=document.getElementById('lightboxVideo'),
       lightboxClose=document.getElementById('lightboxClose'),
       backdropTargets=[document.getElementById('siteHeader'),document.getElementById('mainContent'),document.querySelector('.site-footer'),document.getElementById('toTopBtn')];
 let current=-1,lastFocus=null;
@@ -1025,7 +1040,7 @@ function renderProject(i){
   (p.media||[]).forEach((m,n)=>{
     const fig=document.createElement('figure');
     fig.className='item-in';fig.style.animationDelay=(0.08*n)+'s';
-    let el;
+    let el,videoSrc;
     if(m.type==='video'){
       el=document.createElement('video');
       el.controls=true;el.playsInline=true;el.setAttribute('playsinline','');el.preload='metadata';
@@ -1033,6 +1048,8 @@ function renderProject(i){
       el.src=m.src;
       el.setAttribute('aria-label',m.caption||('Video for '+p.title));
       el.addEventListener('error',()=>el.replaceWith(missing('Video coming soon')),{once:true});
+      videoSrc=m.src;
+    }
     }else if(m.type==='embed'){
       el=document.createElement('iframe');
       el.src=m.src;el.title=m.caption||('Video for '+p.title);el.loading='lazy';
@@ -1043,13 +1060,24 @@ function renderProject(i){
       el.src=m.src;el.alt=m.alt||'';el.loading='lazy';
       el.addEventListener('error',()=>el.replaceWith(missing('Image coming soon')),{once:true});
       el.style.cursor='zoom-in';
-      el.addEventListener('click',()=>openLightbox(el.src,el.alt));
-            el.style.cursor='zoom-in';
-      el.addEventListener('click',()=>openLightbox(el.src,el.alt));
+      el.addEventListener('click',()=>openLightbox('image',el.src,el.alt));
     }
     fig.appendChild(el);
+    if(m.type==='video'){
+      const expandBtn=document.createElement('button');
+      expandBtn.type='button';expandBtn.className='vid-expand';
+      expandBtn.setAttribute('aria-label','View video full screen');
+      expandBtn.innerHTML='<svg viewBox="0 0 20 20"><path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4"/></svg>';
+      expandBtn.addEventListener('click',e=>{
+        e.stopPropagation();
+        el.pause();
+        openLightbox('video',videoSrc);
+      });
+      fig.appendChild(expandBtn);
+    }
     if(m.caption){const c=document.createElement('figcaption');c.textContent=m.caption;fig.appendChild(c);}
     dMedia.appendChild(fig);
+  
   });
   let html='';
   if(p.facts&&p.facts.length){
@@ -1085,8 +1113,19 @@ function closeDrawer(){
   document.body.style.overflow='';
   if(lastFocus&&lastFocus.focus){try{lastFocus.focus({preventScroll:true});}catch(e){lastFocus.focus();}}
 }
-  function openLightbox(src,alt){
-  lightboxImg.src=src;lightboxImg.alt=alt||'';
+function openLightbox(type,src,alt){
+  if(type==='video'){
+    lightboxVideo.src=src;
+    lightboxVideo.classList.add('show');
+    lightboxImg.classList.remove('show');
+    lightboxImg.src='';
+    lightboxVideo.play().catch(()=>{});
+  }else{
+    lightboxImg.src=src;lightboxImg.alt=alt||'';
+    lightboxImg.classList.add('show');
+    lightboxVideo.classList.remove('show');
+    lightboxVideo.pause();lightboxVideo.src='';
+  }
   lightbox.classList.add('open');
   lightbox.setAttribute('aria-hidden','false');
   lightboxClose.focus();
@@ -1095,7 +1134,8 @@ function closeLightbox(){
   if(!lightbox.classList.contains('open'))return;
   lightbox.classList.remove('open');
   lightbox.setAttribute('aria-hidden','true');
-  lightboxImg.src='';
+  lightboxImg.src='';lightboxImg.classList.remove('show');
+  lightboxVideo.pause();lightboxVideo.src='';lightboxVideo.classList.remove('show');
 }
 lightboxClose.addEventListener('click',closeLightbox);
 lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
