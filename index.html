@@ -1049,7 +1049,6 @@ function renderProject(i){
       el.setAttribute('aria-label',m.caption||('Video for '+p.title));
       el.addEventListener('error',()=>el.replaceWith(missing('Video coming soon')),{once:true});
       videoSrc=m.src;
-    }
     }else if(m.type==='embed'){
       el=document.createElement('iframe');
       el.src=m.src;el.title=m.caption||('Video for '+p.title);el.loading='lazy';
