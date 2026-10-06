@@ -1081,7 +1081,7 @@ const drawer=document.getElementById('drawer'),
       lightboxPrev=document.getElementById('lightboxPrev'),
       lightboxNext=document.getElementById('lightboxNext'),
       backdropTargets=[document.getElementById('siteHeader'),document.getElementById('mainContent'),document.querySelector('.site-footer'),document.getElementById('toTopBtn')];
-let current=-1,lastFocus=null;
+let current=-1,lastFocus=null,lightboxImages=[],lightboxIndex=-1;
 
 function missing(label){
   const d=document.createElement('div');
@@ -1092,6 +1092,7 @@ function missing(label){
 
 function renderProject(i){
   const p=PROJECTS[i];current=i;
+  lightboxImages=(p.media||[]).filter(m=>m.type==='image');
   dTitle.innerHTML=flHTML(p.title,FL);
   dType.textContent=p.type;
   dMedia.innerHTML='';
@@ -1199,6 +1200,12 @@ function closeLightbox(){
   lightboxImg.src='';lightboxImg.classList.remove('show');
   lightboxVideo.pause();lightboxVideo.src='';lightboxVideo.classList.remove('show');
 }
+function stepLightbox(dir){
+  if(lightboxIndex<0||!lightboxImages.length)return;
+  lightboxIndex=(lightboxIndex+dir+lightboxImages.length)%lightboxImages.length;
+  const m=lightboxImages[lightboxIndex];
+  openLightbox('image',m.src,m.alt);
+}
 lightboxClose.addEventListener('click',closeLightbox);
 lightbox.addEventListener('click',e=>{if(e.target===lightbox)closeLightbox();});
 lightboxPrev.addEventListener('click',e=>{e.stopPropagation();stepLightbox(-1);});
@@ -1221,9 +1228,14 @@ scrim.addEventListener('click',closeDrawer);
 document.getElementById('prevProject').addEventListener('click',()=>step(-1));
 document.getElementById('nextProject').addEventListener('click',()=>step(1));
 document.addEventListener('keydown',e=>{
-  if(e.key!=='Escape')return;
-  if(lightbox.classList.contains('open')){closeLightbox();return;}
-  closeDrawer();
+  if(e.key==='Escape'){
+    if(lightbox.classList.contains('open')){closeLightbox();return;}
+    closeDrawer();
+    return;
+  }
+  if(!lightbox.classList.contains('open')||lightboxIndex<0)return;
+  if(e.key==='ArrowRight'){e.preventDefault();stepLightbox(1);}
+  else if(e.key==='ArrowLeft'){e.preventDefault();stepLightbox(-1);}
 });
 
 /* ---------- In-page navigation: scrolls the page, never opens a new one ---------- */
