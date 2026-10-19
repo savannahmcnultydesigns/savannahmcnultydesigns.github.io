@@ -76,7 +76,7 @@
       -webkit-text-size-adjust:100%;text-size-adjust:100%;
     }
     body{
-      margin:0;background:var(--bg);color:var(--ink);
+      margin:0;:var(--bg);color:var(--ink);
       font-family:var(--body);font-size:1rem;font-weight:400;line-height:1.6;
       overflow-x:hidden;-webkit-font-smoothing:antialiased;
     }
@@ -104,10 +104,10 @@
     .dia{display:block;width:100%;height:100%;fill:currentColor}
     .btn{
       display:inline-flex;align-items:center;justify-content:center;
-      padding:.4em 1.15em;background:var(--cream);color:var(--ink);
+      padding:.4em 1.15em;:var(--cream);color:var(--ink);
       border:2px solid var(--line);border-radius:999px;
       font:500 1.05rem/1.3 var(--body);text-decoration:none;cursor:pointer;
-      transition:transform .18s ease, box-shadow .18s ease, background-color .18s ease;
+      transition:transform .18s ease, box-shadow .18s ease, -color .18s ease;
     }
     .btn:hover{transform:translateY(-2px);box-shadow:0 3px 0 var(--line);background:#ffe6b8}
     .btn:active{transform:translateY(0);box-shadow:none}
@@ -987,12 +987,12 @@ const PROJECTS = [
     facts:[{label:'Role', value:'Designer, Brand Ambassador'},{label:'Tools', value:'Photoshop'},{label:'Year', value:'2024'}],
     media:[
       {type:'image', src:'images/project-6/image-1.jpg', alt:'Project image 1', caption:'Examples of final photo prints from the event.'},
-      {type:'image', src:'images/project-6/image-2.jpg', alt:'Project image 2', caption:'Frame for photos taken at the photo booth. This would automatically print atop the images taken by the camera that placed the subjects on top of the backgrounds I designed below.'},
-      {type:'image', src:'images/project-6/image-3.jpg', alt:'Project image 3'},
-      {type:'image', src:'images/project-6/image-4.jpg', alt:'Project image 3'},
-      {type:'image', src:'images/project-6/image-5.jpg', alt:'Project image 3'},
-      {type:'image', src:'images/project-6/image-6.jpg', alt:'Project image 3'},
-      {type:'image', src:'images/project-6/image-7.jpg', alt:'Project image 3'},
+      {type:'image', src:'images/project-6/image-2.jpg', alt:'Project image 2', caption:'Frame for photos taken at the photo booth.'},
+      {type:'image', src:'images/project-6/image-3.jpg', alt:'Project image 3', caption:'Background 1'},
+      {type:'image', src:'images/project-6/image-4.jpg', alt:'Project image 4', caption:'Background 2'},
+      {type:'image', src:'images/project-6/image-5.jpg', alt:'Project image 5', caption:'Background 3'},
+      {type:'image', src:'images/project-6/image-6.jpg', alt:'Project image 6', caption:'Background 4'},
+      {type:'image', src:'images/project-6/image-7.jpg', alt:'Project image 7', caption:'Background 5'},
     ]
   }
 ];
